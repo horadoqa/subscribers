@@ -161,7 +161,7 @@ def main():
         subscribers_updates = json.load(f)
 
     last_subscriber_count = [
-        update['UpdateTime'] for update in subscribers_updates
+        update['UpdateTime'] for update in subscribers_updates['SubscribersUpdates']
     ].sort(reverse=True)[0]['SubscribersCount']
 
     current_subscriber_count = get_subscriber_count()
