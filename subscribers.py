@@ -182,4 +182,5 @@ def main():
 
 if __name__ == "__main__":
     # Rodar a verificação
-    check_subscriber_count_periodically()
+    # check_subscriber_count_periodically()
+    main()
