@@ -111,11 +111,12 @@ def get_subscriber_count():
         print(f'O canal tem {subscriber_count} inscritos.')
         return subscriber_count
     except Exception as e:
-        print(f"Erro ao encontrar o número de inscritos: {e}")
-        return None
-    finally:
         # Fechar o navegador
         driver.quit()
+
+        print(f"Erro ao encontrar o número de inscritos: {e}")
+        return None
+        
 
 # Função para verificar o número de inscritos periodicamente e enviar e-mail
 def check_subscriber_count_periodically():
@@ -162,11 +163,7 @@ def main():
 
     last_subscriber_count = [
         update['SubscribersCount'] for update in subscribers_updates['SubscribersUpdates']
-    ]
-
-    print(last_subscriber_count)
-
-    print(last_subscriber_count.sort(reverse=True))
+    ].sort(reverse=True)[0]
 
     current_subscriber_count = get_subscriber_count()
 
