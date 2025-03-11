@@ -1,6 +1,7 @@
 import time
 import smtplib
 import os
+import json
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -25,8 +26,11 @@ driver = webdriver.Chrome(service=Service(chromedriver_path), options=options)
 # URL do canal
 url = "https://www.youtube.com/@horadoqa"
 
+class NoUpdatesFount(Exception):
+    pass
+
 # Função para enviar um e-mail
-def send_email(subject, body):
+def send_email(body):
     sender_email = "contaservico.horadoqa@gmail.com"  # Substitua pelo seu e-mail
     receiver_email = "horadoqa@gmail.com"  # E-mail do destinatário
     password = os.getenv('EMAIL_PASSWORD')  # Substitua pela senha do seu e-mail ou senha de app
@@ -39,7 +43,7 @@ def send_email(subject, body):
     message = MIMEMultipart()
     message['From'] = sender_email
     message['To'] = receiver_email
-    message['Subject'] = subject
+    message['Subject'] = "ALERTA: Mudança no número de inscritos"
 
     # Corpo do e-mail
     message.attach(MIMEText(body, 'plain'))
@@ -129,15 +133,52 @@ def check_subscriber_count_periodically():
         current_subscriber_count = get_subscriber_count()
         
         if current_subscriber_count != last_subscriber_count:
-            subject = "ALERTA: Mudança no número de inscritos"
             body = f'ALERTA: O número de inscritos mudou! De {last_subscriber_count} para {current_subscriber_count}.'
             print(body)
-            send_email(subject, body)  # Enviar e-mail
+            send_email(body)  # Enviar e-mail
             log_subscriber_change(last_subscriber_count, current_subscriber_count)  # Gravar no log
             send_discord_message(body)
             last_subscriber_count = current_subscriber_count
         else:
             print(f'O número de inscritos permanece o mesmo: {current_subscriber_count}. Nenhuma mensagem enviada.')
+
+def save_subscribers_update(subscribers_updates, current_subscriber_count):
+
+    subscriber_update = {
+        "UpdateTime": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "SubscribersCount": current_subscriber_count
+    }
+
+    subscribers_updates['SubscribersUpdates'].append(subscriber_update)
+
+    with open("subscribers_updates.json", "w") as f:
+        json.dump(subscribers_updates, f, indent=4)
+
+
+def main():
+
+    with open("subscribers_updates.json", "r") as f:
+        subscribers_updates = json.load(f)
+
+    last_subscriber_count = [
+        update['UpdateTime'] for update in subscribers_updates
+    ].sort(reverse=True)[0]['SubscribersCount']
+
+    current_subscriber_count = get_subscriber_count()
+
+    current_subscriber_count == last_subscriber_count:
+        raise NoUpdatesFount(
+            f'O número de inscritos permanece o mesmo: {current_subscriber_count}. Nenhuma mensagem enviada.'
+        )
+
+    body = f'ALERTA: O número de inscritos mudou! De {last_subscriber_count} para {current_subscriber_count}.'
+    print(body)
+    send_email(body)  # Enviar e-mail
+    # log_subscriber_change(last_subscriber_count, current_subscriber_count)  # Gravar no log
+    send_discord_message(body)
+    
+    save_subscribers_update(subscribers_updates, current_subscriber_count)
+
 
 if __name__ == "__main__":
     # Rodar a verificação
