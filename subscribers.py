@@ -26,7 +26,7 @@ driver = webdriver.Chrome(service=Service(chromedriver_path), options=options)
 # URL do canal
 url = "https://www.youtube.com/@horadoqa"
 
-class NoUpdatesFount(Exception):
+class NoUpdatesFound(Exception):
     pass
 
 # Função para enviar um e-mail
@@ -167,7 +167,7 @@ def main():
     current_subscriber_count = get_subscriber_count()
 
     if current_subscriber_count == last_subscriber_count:
-        raise NoUpdatesFount(
+        raise NoUpdatesFound(
             f'O número de inscritos permanece o mesmo: {current_subscriber_count}. Nenhuma mensagem enviada.'
         )
 
