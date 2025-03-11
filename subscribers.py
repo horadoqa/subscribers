@@ -166,7 +166,7 @@ def main():
 
     current_subscriber_count = get_subscriber_count()
 
-    current_subscriber_count == last_subscriber_count:
+    if current_subscriber_count == last_subscriber_count:
         raise NoUpdatesFount(
             f'O número de inscritos permanece o mesmo: {current_subscriber_count}. Nenhuma mensagem enviada.'
         )
