@@ -163,7 +163,10 @@ def main():
 
     last_subscriber_count = [
         update['SubscribersCount'] for update in subscribers_updates['SubscribersUpdates']
-    ].sort(reverse=True)[0]
+    ]
+
+    print(last_subscriber_count)
+    print(last_subscriber_count.sort(reverse=True))
 
     current_subscriber_count = get_subscriber_count()
 
