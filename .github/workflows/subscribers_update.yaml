@@ -23,7 +23,7 @@ jobs:
 
     - name: Get Subscribers Update
       run: |
-        pyhton3 subscribers.py
+        python3 subscribers.py
 
     - name: Save Update
       run: |
