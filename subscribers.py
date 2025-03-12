@@ -109,7 +109,7 @@ def get_subscriber_count():
             subscriber_count = subscriber_count.split(' ')[0]  # Pegar só o número antes de "subscribers"
         
         print(f'O canal tem {subscriber_count} inscritos.')
-        return subscriber_count
+        return int(subscriber_count)
     except Exception as e:
         # Fechar o navegador
         driver.quit()
