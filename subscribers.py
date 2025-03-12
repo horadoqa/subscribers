@@ -166,7 +166,8 @@ def main():
     ]
 
     print(f"Last Subscriber Count {last_subscriber_count}")
-    print(f"Last Subscriber Count Reversed {last_subscriber_count.sort(reverse=True)}")
+    last_subscriber_count = last_subscriber_count.sort(reverse=True)
+    print(f"Last Subscriber Count Reversed {last_subscriber_count}")
 
     current_subscriber_count = get_subscriber_count()
 
