@@ -165,8 +165,8 @@ def main():
         update['SubscribersCount'] for update in subscribers_updates['SubscribersUpdates']
     ]
 
-    print(last_subscriber_count)
-    print(last_subscriber_count.sort(reverse=True))
+    print(f"Last Subscriber Count {last_subscriber_count}")
+    print(f"Last Subscriber Count Reversed {last_subscriber_count.sort(reverse=True)}")
 
     current_subscriber_count = get_subscriber_count()
 
