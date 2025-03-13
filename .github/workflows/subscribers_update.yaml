@@ -1,8 +1,9 @@
 name: Subscribers Update
 
-on: workflow_dispatch
-  # schedule:
-  #   - cron: '*/5 * * * *' 
+# on: workflow_dispatch
+on:
+  schedule:
+    - cron: '*/60 * * * *' 
 
 jobs:
   update:
