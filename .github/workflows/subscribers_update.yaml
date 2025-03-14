@@ -3,7 +3,7 @@ name: Subscribers Update
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/60 * * * *'
+    - cron: '0 */1 * * *'
 
 jobs:
   update:
@@ -38,12 +38,8 @@ jobs:
 
         git commit -m "Save Update"
 
-    - name: Pull latest changes from remote (to prevent conflicts)
-      run: |
-        git pull origin main || true  # Tenta o git pull e ignora erros se não houver mudanças remotas
-
     - name: Push Update
       uses: ad-m/github-push-action@master
       with: 
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: main
+        branch: ${{ github.ref }}
