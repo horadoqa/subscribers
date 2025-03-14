@@ -43,7 +43,7 @@ def send_email(body):
     message = MIMEMultipart()
     message['From'] = sender_email
     message['To'] = receiver_email
-    message['Subject'] = "ALERTA: Mudança no número de inscritos"
+    message['Subject'] = "📢 Mudança no número de inscritos"
 
     # Corpo do e-mail
     message.attach(MIMEText(body, 'plain'))
@@ -174,7 +174,7 @@ def main():
             f'O número de inscritos permanece o mesmo: {current_subscriber_count}. Nenhuma mensagem enviada.'
         )
 
-    body = f'ALERTA: O número de inscritos mudou! De {last_subscriber_count} para {current_subscriber_count}.'
+    body = f'📢 O número de inscritos mudou! De {last_subscriber_count} para {current_subscriber_count}.'
     print(body)
     send_email(body)  # Enviar e-mail
     # log_subscriber_change(last_subscriber_count, current_subscriber_count)  # Gravar no log
