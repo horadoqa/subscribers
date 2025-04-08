@@ -55,9 +55,8 @@ def send_email(body):
 
 # Função para enviar uma mensagem para o discord
 def send_discord_message(message):
-    webhook_url = os.getenv('DISCORD_WEBHOOK_URL')  # Substitua pelo seu Webhook URL
+    webhook_url = os.getenv('DISCORD_WEBHOOK_URL')
 
-    # Criação da mensagem
     data = {
         "content": message
     }
@@ -66,9 +65,7 @@ def send_discord_message(message):
         "Content-Type": "application/json"
     }
 
-    # Enviar mensagem para o Discord
     response = requests.post(webhook_url, json=data, headers=headers)
-    # print("Mensagem enviada para o Discord com sucesso!")
 
     if response.status_code == 204:
         print("Mensagem enviada para o Discord com sucesso!")
@@ -77,11 +74,9 @@ def send_discord_message(message):
 
 # Função para registrar a mudança no número de inscritos no arquivo de log
 def log_subscriber_change(last_subscriber_count, current_subscriber_count):
-    # Obtém data e hora atual
     current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     log_message = f"{current_time} - O número de inscritos mudou! De {last_subscriber_count} para {current_subscriber_count}\n"
     
-    # Abrir o arquivo subscribe.log e escrever a mensagem
     with open("subscribe.log", "a") as log_file:
         log_file.write(log_message)
     
@@ -89,9 +84,6 @@ def log_subscriber_change(last_subscriber_count, current_subscriber_count):
 
 # Função para obter o número de inscritos
 def get_subscriber_count():
-    # Inicializando o WebDriver
-    driver = webdriver.Chrome(service=Service(chromedriver_path), options=options)
-    
     # Acessar a página do canal
     driver.get(url)
     
@@ -102,49 +94,18 @@ def get_subscriber_count():
         )
         
         # Pegar o texto do elemento
-        subscriber_count = subscriber_count_element.text.strip()
-
-        # Garantir que estamos pegando apenas o número (sem o texto "subscribers")
-        if 'subscribers' in subscriber_count:
-            subscriber_count = subscriber_count.split(' ')[0]  # Pegar só o número antes de "subscribers"
+        subscriber_count_text = subscriber_count_element.text.strip()
         
-        print(f'O canal tem {subscriber_count} inscritos.')
-        return int(subscriber_count)
-    except Exception as e:
-        # Fechar o navegador
-        driver.quit()
+        # Retirar a palavra "subscribers" do texto, se presente
+        subscriber_count_text = subscriber_count_text.replace(' subscribers', '').strip()
 
+        return subscriber_count_text
+    except Exception as e:
         print(f"Erro ao encontrar o número de inscritos: {e}")
         return None
-        
 
-# Função para verificar o número de inscritos periodicamente e enviar e-mail
-def check_subscriber_count_periodically():
-    # Obter o primeiro número de inscritos
-    first_subscriber_count = get_subscriber_count()
-    
-    if not first_subscriber_count:
-        print("Erro ao obter o número de inscritos inicialmente.")
-        return
-
-    last_subscriber_count = first_subscriber_count
-
-    while True:
-        time.sleep(600)  # Espera 10 minutos (600 segundos)
-        current_subscriber_count = get_subscriber_count()
-        
-        if current_subscriber_count != last_subscriber_count:
-            body = f'ALERTA: O número de inscritos mudou! De {last_subscriber_count} para {current_subscriber_count}.'
-            print(body)
-            send_email(body)  # Enviar e-mail
-            log_subscriber_change(last_subscriber_count, current_subscriber_count)  # Gravar no log
-            send_discord_message(body)
-            last_subscriber_count = current_subscriber_count
-        else:
-            print(f'O número de inscritos permanece o mesmo: {current_subscriber_count}. Nenhuma mensagem enviada.')
 
 def save_subscribers_update(subscribers_updates, current_subscriber_count):
-
     subscriber_update = {
         "UpdateTime": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         "SubscribersCount": current_subscriber_count
@@ -155,35 +116,36 @@ def save_subscribers_update(subscribers_updates, current_subscriber_count):
     with open("subscribers_updates.json", "w") as f:
         json.dump(subscribers_updates, f, indent=4)
 
-
 def main():
-
-    with open("subscribers_updates.json", "r") as f:
-        subscribers_updates = json.load(f)
-
-    last_subscriber_count = [
-        update['SubscribersCount'] for update in subscribers_updates['SubscribersUpdates']
-    ]
-
-    last_subscriber_count = sorted(last_subscriber_count, reverse=True)[0]
+    # Carregar ou inicializar o dicionário de atualizações
+    if os.path.exists("subscribers_updates.json"):
+        with open("subscribers_updates.json", "r") as f:
+            subscribers_updates = json.load(f)
+    else:
+        subscribers_updates = {"SubscribersUpdates": []}
 
     current_subscriber_count = get_subscriber_count()
 
-    if current_subscriber_count == last_subscriber_count:
-        raise NoUpdatesFound(
-            f'O número de inscritos permanece o mesmo: {current_subscriber_count}. Nenhuma mensagem enviada.'
-        )
+    if not current_subscriber_count:
+        print("Erro ao obter o número de inscritos.")
+        return
 
-    body = f'📢 O número de inscritos mudou! De {last_subscriber_count} para {current_subscriber_count}.'
+    # Criar a mensagem de alerta
+    body = f'📢 O número de inscritos atual: {current_subscriber_count}'
     print(body)
-    send_email(body)  # Enviar e-mail
-    # log_subscriber_change(last_subscriber_count, current_subscriber_count)  # Gravar no log
+
+    # Enviar mensagem no Discord
     send_discord_message(body)
     
+    # Gravar no log
+    log_subscriber_change(None, current_subscriber_count)  # Log da primeira vez (sem comparação)
+    
+    # Salvar a atualização
     save_subscribers_update(subscribers_updates, current_subscriber_count)
+    
+    # Enviar e-mail
+    send_email(body)  
 
 
 if __name__ == "__main__":
-    # Rodar a verificação
-    # check_subscriber_count_periodically()
     main()
