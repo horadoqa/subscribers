@@ -89,7 +89,7 @@ def get_subscriber_count():
     
     try:
         # Aguardar até que o número de inscritos esteja visível
-        subscriber_count_element = WebDriverWait(driver, 10).until(
+        subscriber_count_element = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="page-header"]/yt-page-header-renderer/yt-page-header-view-model/div/div[1]/div/yt-content-metadata-view-model/div[2]/span[1]'))
         )
         
