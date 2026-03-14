@@ -40,10 +40,10 @@ def get_subscriber_count():
         
         # Pegar o texto do elemento
         subscriber_count_text = subscriber_count_element.text.strip()
-        print(f'Texto de inscritos: {subscriber_count_text}')
+        print(f'Quantidade de inscritos: {subscriber_count_text}')
 
         # Retornar o texto original, sem fazer a conversão
-        print(f'O canal tem {subscriber_count_text} inscritos.')
+        print(f'O canal tem {subscriber_count_text}')
         return subscriber_count_text
     except Exception as e:
         # Fechar o navegador
